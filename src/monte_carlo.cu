@@ -2,6 +2,11 @@
 #include "config.h"
 #include "monte_carlo.h"
 
+__global__ void initCurand(unsigned int seed, curandState* states) {
+    int idx = threadIdx.x + blockIdx.x * blockDim.x;
+    curand_init(seed, idx, 0, &states[idx]);
+}
+
 __global__ void MC_Heston(float S0, float V0, float r, float kappa, float theta, float rho, float sigma, float dt, float K, 
                     int N, curandState *state, float *sum, int n) {
 

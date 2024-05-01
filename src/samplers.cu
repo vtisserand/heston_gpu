@@ -5,7 +5,6 @@
 #include <curand_kernel.h>
 #include "samplers.h"
 
-
 #define NUM_SAMPLES 1000000
 #define BLOCK_SIZE 256
 
