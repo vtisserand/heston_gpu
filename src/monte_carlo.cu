@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <curand_kernel.h>
 #include "config.h"
 #include "monte_carlo.h"
@@ -74,7 +75,7 @@ int main(void) {
 
 	curandState* states;
 	cudaMalloc(&states, n*sizeof(curandState));
-	init_curand_state_k<<<NB, NTPB>>>(states);
+	initCurand<<<NB, NTPB>>>(time(0), states);
 
 	float Tim;
 	cudaEvent_t start, stop;			// GPU timer instructions

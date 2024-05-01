@@ -1,6 +1,7 @@
 #ifndef MONTE_CARLO_H
 #define MONTE_CARLO_H
 
+#include <stdio.h>
 #include <curand_kernel.h>
 
 // Declaration of the CUDA kernel

@@ -1,6 +1,7 @@
 #ifndef EXACT_H
 #define EXACT_H
 
+#include <stdio.h>
 #include <cuda_runtime.h>
 #include <curand_kernel.h>
 #include "samplers.h"

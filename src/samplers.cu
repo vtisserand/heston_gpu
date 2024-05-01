@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -102,6 +103,14 @@ __device__ float GKM3(curandState* state, float alpha) {
     return 0.0f; // Unreachable
 }
 
+// Define the CUDA kernel to generate samples
+__global__ void generateSamples(curandState *state, float alpha, float *samples) {
+    int idx = blockDim.x * blockIdx.x + threadIdx.x;
+    curandState localState = state[idx];
+
+    // Generate samples using GS_star function
+    samples[idx] = GS_star(&localState, alpha);
+}
 
 
 int main() {
