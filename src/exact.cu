@@ -4,6 +4,7 @@
 #include <cuda_runtime.h>
 #include <curand_kernel.h>
 #include "samplers.h"
+#include "config.h"
 #include "exact.h"
 
 

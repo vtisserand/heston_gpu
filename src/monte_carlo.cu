@@ -1,4 +1,5 @@
 #include <curand_kernel.h>
+#include "config.h"
 #include "monte_carlo.h"
 
 __global__ void MC_Heston(float S0, float V0, float r, float kappa, float theta, float rho, float sigma, float dt, float K, 
