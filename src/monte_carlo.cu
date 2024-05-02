@@ -61,6 +61,9 @@ __global__ void MC_Heston(curandState* state,
         atomicAdd(sum, R1s[0] / n);
         atomicAdd(sum + 1, R2s[0] / n);
     }
+
+	// Copy state back to global memory
+	state[idx] = localState;
 }
 
 

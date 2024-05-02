@@ -117,12 +117,14 @@ __device__ float GKM3(curandState* state,
 __global__ void generateSamples(curandState *state, 
                                 float alpha, 
                                 float *samples) {
-                                    
+
     int idx = blockDim.x * blockIdx.x + threadIdx.x;
     curandState localState = state[idx];
 
     // Generate samples using GS_star function
     samples[idx] = GS_star(&localState, alpha);
+
+    state[idx] = localState;
 }
 
 

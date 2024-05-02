@@ -110,45 +110,41 @@ __global__ void exact_Heston(curandState *state,
 
     float rand = curand_normal(&localState);
     sum[idx] = mean + sqrtf(var) * rand;
+
+    state[idx] = localState;
 }
 
 int main() {
     // Define kernel parameters
-    float S0 = 100.0f;
-    float V0 = 0.09f;
-    float r = 0.05f;
+    float S0 = 1.0f;
+    float V0 = 0.1f;
+    float r = 0.0f;
     float kappa = 2.0f;
-    float theta = 0.09f;
+    float theta = 0.1f;
     float rho = -0.3f;
-    float sigma = 1.0f;
+    float sigma = 0.2f;
     float dt = 0.01f;
-    float K = 100.0f;
+    float K = 1.0f;
     int N = 100;
     int n = 1;
     float T = 5.0f;
 
-    // Allocate memory for random states on GPU
     curandState *devStates;
     cudaMalloc((void**)&devStates, NUM_SAMPLES * sizeof(curandState));
 
-    // Allocate memory for sum on GPU
     float *devSum;
     cudaMalloc((void**)&devSum, NUM_SAMPLES * sizeof(float));
 
-    // Launch the kernel
     exact_Heston<<<(NUM_SAMPLES + BLOCK_SIZE - 1) / BLOCK_SIZE, BLOCK_SIZE>>>(
         S0, V0, r, kappa, theta, rho, sigma, dt, K, T, N, devStates, devSum, n);
 
-    // Copy sum from GPU to CPU
     std::vector<float> hostSum(NUM_SAMPLES);
     cudaMemcpy(hostSum.data(), devSum, NUM_SAMPLES * sizeof(float), cudaMemcpyDeviceToHost);
 
-    // Print results
     for (int i = 0; i < NUM_SAMPLES; ++i) {
         std::cout << "Sample " << i << ": " << hostSum[i] << std::endl;
     }
 
-    // Free allocated memory on GPU
     cudaFree(devStates);
     cudaFree(devSum);
 
