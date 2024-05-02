@@ -3,9 +3,23 @@
 
 #include <stdio.h>
 #include <curand_kernel.h>
+#include "config.h"
+#include "monte_carlo.h"
 
-// Declaration of the CUDA kernel
-__global__ void MC_Heston(float S0, float V0, float r, float kappa, float theta, float rho, float sigma, float dt, float K, 
-                           int N, curandState *state, float *sum, int n);
+__global__ void initCurand(unsigned int seed, curandState* states);
 
+__global__ void MC_Heston(curandState* state,
+                          float S0,
+                          float V0,
+                          float r,
+                          float kappa,
+                          float theta,
+                          float rho,
+                          float sigma,
+                          float dt,
+                          float K,
+                          int N,
+                          float *sum,
+                          int n);
+                          
 #endif

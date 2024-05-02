@@ -25,19 +25,19 @@ __device__ float quadrature_V(curandState* state,
                               float sigma, 
                               float T);
 
-__global__ void exact_Heston(float S0, 
-                              float V0, 
-                              float r, 
-                              float kappa, 
-                              float theta, 
-                              float rho, 
-                              float sigma, 
-                              float dt, 
-                              float K, 
-                              float T,
-                              int N, 
-                              curandState *state, 
-                              float *sum, 
-                              int n);
+__global__ void exact_Heston(curandState *state, 
+                             float S0, 
+                             float V0, 
+                             float r, 
+                             float kappa, 
+                             float theta, 
+                             float rho, 
+                             float sigma, 
+                             float dt, 
+                             float K, 
+                             float T,
+                             int N, 
+                             float *sum, 
+                             int n);
 
 #endif

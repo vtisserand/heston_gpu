@@ -8,8 +8,18 @@
 #include "config.h"
 #include "exact.h"
 
+#define NUM_SAMPLES 100
+#define BLOCK_SIZE 256
 
-__device__ float sample_V(curandState* state, float V0, float r, float kappa, float theta, float rho, float sigma, float T){
+__device__ float sample_V(curandState* state,
+                          float V0,
+                          float r,
+                          float kappa,
+                          float theta,
+                          float rho,
+                          float sigma,
+                          float T) {
+
 	float delta = (4 * theta * kappa) / (sigma * sigma);
 	float lambda = (4 * kappa * expf(-kappa * T)) / (sigma * sigma * (1 - expf(-kappa * T)));
 
@@ -43,7 +53,16 @@ __device__ float sample_V(curandState* state, float V0, float r, float kappa, fl
 	return ((sigma * sigma * (1 - expf(-kappa * T)))) / (4 * kappa) * non_central;
 }
 
-__device__ float quadrature_V(curandState* state, int n_steps, float V0, float r, float kappa, float theta, float rho, float sigma, float T) {
+__device__ float quadrature_V(curandState* state, 
+                              int n_steps, 
+                              float V0, 
+                              float r, 
+                              float kappa, 
+                              float theta, 
+                              float rho, 
+                              float sigma, 
+                              float T) {
+
     float dt = T / n_steps;
 
     float integral = 0.0f;
@@ -62,8 +81,21 @@ __device__ float quadrature_V(curandState* state, int n_steps, float V0, float r
 }
 
 
-__global__ void exact_Heston(float S0, float V0, float r, float kappa, float theta, float rho, float sigma, float dt, float K, float T,
-                    int N, curandState *state, float *sum, int n) {
+__global__ void exact_Heston(curandState *state,
+                             float S0,
+                             float V0, 
+                             float r, 
+                             float kappa, 
+                             float theta, 
+                             float rho, 
+                             float sigma, 
+                             float dt, 
+                             float K, 
+                             float T,
+                             int N, 
+                             float *sum, 
+                             int n) {
+
     int idx = blockDim.x * blockIdx.x + threadIdx.x;
     curandState localState = state[idx];
     int n_steps = 100;

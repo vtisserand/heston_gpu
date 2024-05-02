@@ -14,4 +14,6 @@ __device__ float GKM2(curandState* state, float alpha);
 
 __device__ float GKM3(curandState* state, float alpha);
 
+__global__ void generateSamples(curandState *state, float alpha, float *samples);
+
 #endif

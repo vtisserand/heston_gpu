@@ -9,13 +9,17 @@
 #define NUM_SAMPLES 1000000
 #define BLOCK_SIZE 256
 
-__global__ void initCurand(unsigned int seed, curandState* states) {
+__global__ void initCurand(unsigned int seed, 
+                           curandState* states) {
+
     int idx = threadIdx.x + blockIdx.x * blockDim.x;
     curand_init(seed, idx, 0, &states[idx]);
 }
 
 
-__device__ float GS_star(curandState* state, float alpha) {
+__device__ float GS_star(curandState* state, 
+                         float alpha) {
+
     float e = 2.718;
 	float b = (alpha + e) / e;
 
@@ -41,7 +45,9 @@ __device__ float GS_star(curandState* state, float alpha) {
     return z;
 }
 
-__device__ float GKM1(curandState* state, float alpha) {
+__device__ float GKM1(curandState* state, 
+                      float alpha) {
+
     float a = alpha - 1;
 	float b = (alpha - 1 / (6*alpha)) / a;
 	float m = 2/1;
@@ -63,7 +69,9 @@ __device__ float GKM1(curandState* state, float alpha) {
     return 0.0f; // Unreachable
 }
 
-__device__ float GKM2(curandState* state, float alpha) {
+__device__ float GKM2(curandState* state, 
+                      float alpha) {
+
     float a = alpha - 1;
 	float b = (alpha - 1 / (6*alpha)) / a;
 	float m = 2/1;
@@ -92,7 +100,9 @@ __device__ float GKM2(curandState* state, float alpha) {
     return 0.0f; // Unreachable
 }
 
-__device__ float GKM3(curandState* state, float alpha) {
+__device__ float GKM3(curandState* state,  
+                      float alpha) {
+
     float alpha_0 = 2.5f;
 	if (alpha < alpha_0) {
 		return GKM1(state, alpha);
@@ -104,7 +114,10 @@ __device__ float GKM3(curandState* state, float alpha) {
 }
 
 // Define the CUDA kernel to generate samples
-__global__ void generateSamples(curandState *state, float alpha, float *samples) {
+__global__ void generateSamples(curandState *state, 
+                                float alpha, 
+                                float *samples) {
+                                    
     int idx = blockDim.x * blockIdx.x + threadIdx.x;
     curandState localState = state[idx];
 
