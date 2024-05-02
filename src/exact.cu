@@ -11,6 +11,105 @@
 #define NUM_SAMPLES 100
 #define BLOCK_SIZE 256
 
+
+__device__ float GS_star(curandState* state, 
+                         float alpha) {
+
+    float e = 2.718;
+	float b = (alpha + e) / e;
+
+	float u, y, z, w, w_1;
+    do {
+        u = curand_uniform(state);
+		y = b*u;
+        if (y <= 1.0f) {
+            z = powf(y, 1/alpha);
+			float temp = curand_uniform(state);
+			w = -logf(temp); // Inverse cdf.
+			if (w > z)
+				return z;
+        } else {
+            z = -logf((b-y) / alpha);
+			w_1 = curand_uniform(state);
+			w = powf(w_1, 1 / (alpha - 1));
+			if (w <= z)
+                return z;
+        }
+    } while (true);
+
+    return z;
+}
+
+__device__ float GKM1(curandState* state, 
+                      float alpha) {
+
+    float a = alpha - 1;
+	float b = (alpha - 1 / (6*alpha)) / a;
+	float m = 2/1;
+	float d = m + 2;
+
+	float x_prime, y_prime, v;
+    do {
+        x_prime = curand_uniform(state);
+        y_prime = curand_uniform(state);
+		    v = b * y_prime / x_prime;
+        if (m * x_prime - d + v + 1/v <= 0.0f) {
+            return a * v;
+        } else {
+            if (m * logf(x_prime) - logf(v) + v - 1 <= 0.0f) {
+                return a * v;
+            }
+        }
+    } while (true);
+    return 0.0f; // Unreachable
+}
+
+__device__ float GKM2(curandState* state, 
+                      float alpha) {
+
+    float a = alpha - 1;
+	float b = (alpha - 1 / (6*alpha)) / a;
+	float m = 2/1;
+	float d = m + 2;
+	float f = sqrtf(alpha);
+
+	float x, y_prime, x_prime;
+    do {
+        x = curand_uniform(state);
+        y_prime = curand_uniform(state);
+		x_prime = y_prime + (1 - 1.857764 * x) / f;
+    } while (x_prime > 0.0f and x_prime < 1.0f);
+
+	float v;
+	do {
+        v = b * y_prime / x_prime;
+        if (m * x_prime - d + v + 1/v <= 0.0f) {
+            return a * v;
+        } else {
+            if (m * logf(x_prime) - logf(v) + v - 1 <= 0.0f) {
+                return a * v;
+            }
+        }
+    } while (true);
+
+    return 0.0f; // Unreachable
+}
+
+__device__ float GKM3(curandState* state,  
+                      float alpha) {
+
+    float alpha_0 = 2.5f;
+	if (alpha < alpha_0) {
+		return GKM1(state, alpha);
+	}
+	else {
+		return GKM2(state, alpha);
+	}
+    return 0.0f; // Unreachable
+}
+
+
+
 __device__ float sample_V(curandState* state,
                           float V0,
                           float r,
@@ -135,8 +234,20 @@ int main() {
     float *devSum;
     cudaMalloc((void**)&devSum, NUM_SAMPLES * sizeof(float));
 
-    exact_Heston<<<(NUM_SAMPLES + BLOCK_SIZE - 1) / BLOCK_SIZE, BLOCK_SIZE>>>(
-        S0, V0, r, kappa, theta, rho, sigma, dt, K, T, N, devStates, devSum, n);
+    exact_Heston<<<(NUM_SAMPLES + BLOCK_SIZE - 1) / BLOCK_SIZE, BLOCK_SIZE>>>(devStates,
+                                                                              S0, 
+                                                                              V0, 
+                                                                              r,
+                                                                              kappa, 
+                                                                              theta,
+                                                                              rho, 
+                                                                              sigma, 
+                                                                              dt, 
+                                                                              K, 
+                                                                              T, 
+                                                                              N, 
+                                                                              devSum, 
+                                                                              n);
 
     std::vector<float> hostSum(NUM_SAMPLES);
     cudaMemcpy(hostSum.data(), devSum, NUM_SAMPLES * sizeof(float), cudaMemcpyDeviceToHost);
